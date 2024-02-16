@@ -1,0 +1,50 @@
+# Download Kafka binaries from the Apache website
+wget https://downloads.apache.org/kafka/3.3.1/kafka_2.12-3.3.1.tgz
+
+# Extract the Kafka package
+tar -xvf kafka_2.12-3.3.1.tgz
+
+# Check the current Java version
+java -version
+
+# Install Java OpenJDK version 1.8 if it's not installed
+sudo yum install java-1.8.0-openjdk
+
+# Verify Java installation by checking the version again
+java -version
+
+# Change directory to the Kafka installation directory
+cd kafka_2.12-3.3.1
+
+# Start ZooKeeper server
+# ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+# Open another terminal window and SSH to your EC2 machine as before to start the Kafka server
+
+# Start Kafka server
+# First, set Kafka heap options to manage memory usage
+export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
+# Navigate to Kafka installation directory
+cd kafka_2.12-3.3.1
+# Start the Kafka server with the server properties configuration
+bin/kafka-server-start.sh config/server.properties
+# Note: Ensure server.properties is configured to use the public IP for ADVERTISED_LISTENERS
+
+# To change server.properties to use the public IP, you can use a text editor like nano
+# Edit server.properties and change ADVERTISED_LISTENERS to the public IP of the EC2 instance
+sudo nano config/server.properties
+
+# Create a Kafka topic
+# Open a new terminal session, navigate to Kafka directory, and use the kafka-topics script to create a new topic
+cd kafka_2.12-3.3.1
+bin/kafka-topics.sh --create --topic konarkykafkatest --bootstrap-server {Put the Public IP of your EC2 Instance:9092} --replication-factor 1 --partitions 1
+
+# Start Kafka producer
+# Use the kafka-console-producer script to send messages to the Kafka topic
+bin/kafka-console-producer.sh --topic konarkykafkatest --bootstrap-server {Put the Public IP of your EC2 Instance:9092}
+
+# Start Kafka consumer
+# Open a new terminal session, navigate to Kafka directory, and use the kafka-console-consumer script to read messages from the Kafka topic
+cd kafka_2.12-3.3.1
+bin/kafka-console-consumer.sh --topic konarkykafkatest --bootstrap-server {Put the Public IP of your EC2 Instance:9092}
